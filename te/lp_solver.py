@@ -130,21 +130,15 @@ def solve_all_od_path_lp(
     for od in range(num_od):
         demand = float(tm_vector[od])
         if demand <= 0:
-            # Zero-demand OD: leave fractions free (but they don't hit edges).
-            # Skip the conservation constraint to keep the LP feasible if
-            # there are isolated zero-demand ODs.
             continue
         paths = path_library.edge_idx_paths_by_od[od]
         if not paths:
-            # Can't route this demand — infeasible model, but we let the LP
-            # proceed; PR_path_opt validation will catch it.
             continue
         prob += pulp.lpSum(f[od]) == 1, f"demand_{od}"
         for p_idx, edge_path in enumerate(paths):
             for e in edge_path:
                 edge_load[e].append((demand, f[od][p_idx]))
 
-    # Capacity / U constraints
     for e in range(num_edges):
         cap = float(capacities[e])
         if cap <= 0:
@@ -162,7 +156,6 @@ def solve_all_od_path_lp(
     status = prob.solve(solver)
     status_str = pulp.LpStatus[status]
 
-    # Extract solution
     splits: List[np.ndarray] = []
     edge_flows_by_od: List[Dict[int, float]] = [{} for _ in range(num_od)]
     link_loads = np.zeros(num_edges, dtype=float)
@@ -177,7 +170,6 @@ def solve_all_od_path_lp(
         for p_idx, var in enumerate(f[od]):
             v = var.value()
             sp[p_idx] = float(v) if v is not None else 0.0
-        # Renormalise tiny numerical drift
         s = sp.sum()
         if s > EPS and abs(s - 1.0) > 1e-6 and demand > 0:
             sp = sp / s
@@ -197,7 +189,6 @@ def solve_all_od_path_lp(
     util = link_loads / np.maximum(capacities, EPS)
     mlu_value = float(np.max(util)) if num_edges else 0.0
 
-    # Cross-check against U variable (helps detect HiGHS PrimalMismatch)
     u_val = U.value()
     if u_val is not None and status_str.lower() == "optimal":
         if abs(float(u_val) - mlu_value) > 1e-3:
@@ -219,9 +210,6 @@ def _build_background_load(
     selected_set: set[int],
     num_edges: int,
 ) -> np.ndarray:
-    # In the hybrid setup, only selected ODs are re-optimized.
-    # Non-selected ODs remain fixed (usually ECMP), and their traffic is treated
-    # as immutable background load in the LP constraints.
     load = np.zeros(num_edges, dtype=float)
     for od_idx, demand in enumerate(tm_vector):
         if demand <= 0 or od_idx in selected_set:
@@ -284,12 +272,6 @@ def _db_l1_demand_weighted(
     new_splits: Sequence[np.ndarray],
     tm_vector: np.ndarray,
 ) -> float:
-    """Disturbance metric used by the rollout: demand-weighted L1 of split changes.
-
-    Mirrors te.disturbance.compute_disturbance(); we re-implement inline so the
-    LP solver does not need to import it (avoids circular imports if te.disturbance
-    ever pulls from te.lp_solver in the future).
-    """
     if prev_splits is None:
         return 0.0
     total = 0.0
@@ -302,8 +284,6 @@ def _db_l1_demand_weighted(
         prev = np.asarray(prev_splits[od_idx], dtype=float)
         new = np.asarray(new_splits[od_idx], dtype=float)
         if prev.size != new.size:
-            # If path libraries differ in size (e.g. failure-aware rebuild),
-            # treat as full change.
             total += d * 2.0
             continue
         total += d * float(np.sum(np.abs(prev - new)))
@@ -322,23 +302,6 @@ def solve_selected_path_lp(
     prev_splits: Sequence[np.ndarray] | None = None,
     n_restarts: int | None = None,
 ) -> HybridLPResult:
-    """
-    Hybrid LP: optimize selected OD flows across K paths, with non-selected ODs fixed to base policy.
-
-    Multi-restart mode (Path A — cross-platform stability):
-      If `n_restarts > 1` AND `prev_splits` is provided, the LP is solved with
-      multiple CBC seeds and the splits with the LOWEST disturbance (L1 weighted
-      L1 against prev_splits) are returned.  All restarts solve to the same
-      optimal MLU (the LP has a unique optimum value U*), but multiple equally-
-      optimal corner points may exist; we pick the one that gives the most
-      stable rollout.
-
-      n_restarts defaults to LP_RESTARTS env var (default 1).
-      Base seed = CBC_SEED env var (default 42); restart i uses seed = base + i*7.
-
-      When n_restarts == 1 or prev_splits is None, single-solve behaviour is
-      preserved exactly (back-compatible).
-    """
     num_edges = int(capacities.size)
     selected_set = {
         int(od_idx)
@@ -351,7 +314,6 @@ def solve_selected_path_lp(
         routing = apply_routing(tm_vector, splits, path_library, capacities)
         return HybridLPResult(splits=splits, routing=routing, status="NoSelection")
 
-    # Resolve multi-restart count
     if n_restarts is None:
         try:
             n_restarts = int(os.environ.get("LP_RESTARTS", "1"))
@@ -362,7 +324,6 @@ def solve_selected_path_lp(
     background = _build_background_load(tm_vector, base_splits, path_library, selected_set, num_edges)
 
     model = pulp.LpProblem("hybrid_te_selected_lp", pulp.LpMinimize)
-    # U is the MLU surrogate variable shared by all link constraints.
     U = pulp.LpVariable("U", lowBound=0.0)
 
     flow_vars: Dict[Tuple[int, int], pulp.LpVariable] = {}
@@ -376,28 +337,22 @@ def solve_selected_path_lp(
 
         per_od_vars = []
         for path_idx, edge_path in enumerate(paths):
-            # f_od,path is the traffic amount assigned to one candidate path.
             var = pulp.LpVariable(f"f_{od_idx}_{path_idx}", lowBound=0.0)
             flow_vars[(od_idx, path_idx)] = var
             per_od_vars.append(var)
             for edge_idx in edge_path:
                 incidence[edge_idx].append(var)
 
-        # Flow conservation at OD level: all demand of this OD must be routed.
         model += pulp.lpSum(per_od_vars) == demand, f"demand_{od_idx}"
 
     for edge_idx in range(num_edges):
-        # Link capacity with background load already present:
-        # background + optimized selected traffic <= U * capacity.
         model += (
             background[edge_idx] + pulp.lpSum(incidence[edge_idx]) <= U * float(capacities[edge_idx]),
             f"cap_{edge_idx}",
         )
 
-    # Minimize U, i.e., minimize the worst link utilization (MLU).
     model += U
 
-    # ── Single-solve path (back-compatible default) ───────────────────
     if not multi_restart_active:
         solver = _get_solver(msg=solver_msg, time_limit_sec=int(time_limit_sec))
         status_code = model.solve(solver)
@@ -412,10 +367,6 @@ def solve_selected_path_lp(
         routing = apply_routing(tm_vector, splits, path_library, capacities)
         return HybridLPResult(splits=splits, routing=routing, status=status)
 
-    # ── Multi-restart path ────────────────────────────────────────────
-    # Solve N times with spaced CBC seeds.  Each solve hits the same optimal
-    # MLU but may return a different corner-point solution; we pick the one
-    # with the lowest disturbance to prev_splits.
     try:
         base_seed = int(os.environ.get("CBC_SEED", "42"))
     except ValueError:
@@ -424,7 +375,6 @@ def solve_selected_path_lp(
     best_splits = None
     best_db = float("inf")
     best_status = "Unknown"
-    # Use a smaller per-restart time budget so total time stays bounded
     per_restart_time = max(2, int(time_limit_sec) // n_restarts) if n_restarts > 0 else int(time_limit_sec)
     for restart_idx in range(n_restarts):
         seed = base_seed + 7 * restart_idx
@@ -448,7 +398,6 @@ def solve_selected_path_lp(
             best_status = status
 
     if best_splits is None:
-        # All restarts failed — fall back to base policy
         splits = clone_splits(base_splits)
         routing = apply_routing(tm_vector, splits, path_library, capacities)
         return HybridLPResult(splits=splits, routing=routing, status="AllRestartsFailed")
@@ -469,14 +418,6 @@ def solve_selected_path_lp_min_db(
     time_limit_sec: int = 20,
     solver_msg: bool = False,
 ) -> HybridLPResult:
-    """Stage 2 of the two-stage DB-minimizing LP.
-
-    Given U_star (stage-1 optimal MLU), minimize the L1 disturbance against prev_splits
-    subject to link load <= (1+epsilon)*U_star*capacity for every link.
-
-    If prev_splits is None (first cycle) we fall back to stage 1 by returning a
-    NoSelection result so the caller keeps the stage-1 splits.
-    """
     num_edges = int(capacities.size)
     selected_set = {
         int(od_idx)
@@ -494,7 +435,7 @@ def solve_selected_path_lp_min_db(
 
     model = pulp.LpProblem("min_db_selected_lp", pulp.LpMinimize)
     flow_vars: Dict[Tuple[int, int], pulp.LpVariable] = {}
-    aux_vars: List[pulp.LpVariable] = []  # y_{od,path} >= |f - prev_f|
+    aux_vars: List[pulp.LpVariable] = []
     incidence: List[List[pulp.LpVariable]] = [[] for _ in range(num_edges)]
 
     for od_idx in sorted(selected_set):
@@ -502,7 +443,6 @@ def solve_selected_path_lp_min_db(
         paths = path_library.edge_idx_paths_by_od[od_idx]
         if demand <= 0 or not paths:
             continue
-        # Previous traffic amount on each path = prev_split * demand.
         prev_vec = np.asarray(prev_splits[od_idx], dtype=float) if od_idx < len(prev_splits) else np.zeros(len(paths))
         prev_pad = np.zeros(len(paths), dtype=float)
         prev_pad[: min(prev_vec.size, len(paths))] = prev_vec[: min(prev_vec.size, len(paths))]
@@ -515,7 +455,6 @@ def solve_selected_path_lp_min_db(
             per_od_vars.append(f)
             for edge_idx in edge_path:
                 incidence[edge_idx].append(f)
-            # |f - prev_f| linearization: y >= f - prev_f and y >= prev_f - f
             y = pulp.LpVariable(f"y_{od_idx}_{path_idx}", lowBound=0.0)
             aux_vars.append(y)
             model += y >= f - float(prev_f[path_idx]), f"abs_pos_{od_idx}_{path_idx}"
@@ -523,14 +462,12 @@ def solve_selected_path_lp_min_db(
 
         model += pulp.lpSum(per_od_vars) == demand, f"demand_{od_idx}"
 
-    # Link load <= (1+eps)*U*  with background already included
     for edge_idx in range(num_edges):
         model += (
             background[edge_idx] + pulp.lpSum(incidence[edge_idx]) <= cap_bound * float(capacities[edge_idx]),
             f"cap_{edge_idx}",
         )
 
-    # Minimize total disturbance amount (un-normalized, proportional to DB)
     model += pulp.lpSum(aux_vars)
 
     solver = _get_solver(msg=solver_msg, time_limit_sec=int(time_limit_sec))
@@ -559,7 +496,6 @@ def solve_selected_path_lp_dbbudget(
     time_limit_sec: int = 20,
     solver_msg: bool = False,
 ) -> HybridLPResult:
-    """DB-budgeted PR-first single-stage routing LP (Option A — the inverse knob)."""
     num_edges = int(capacities.size)
     selected_set = {
         int(od_idx)
@@ -671,7 +607,6 @@ def solve_full_mcf_min_mlu(
     time_limit_sec: int = 60,
     solver_msg: bool = False,
 ) -> FullMCFResult:
-    """Full multi-commodity flow LP minimizing MLU (M2 reference)."""
     active_ods = [idx for idx, demand in enumerate(tm_vector) if demand > 0]
     num_edges = len(edges)
 
@@ -770,3 +705,183 @@ def solve_full_mcf_min_mlu(
         status=status,
         edge_flows_by_od=edge_flows_by_od,
     )
+
+import scipy.sparse as sp
+from scipy.optimize import linprog
+import numpy as np
+
+def solve_selected_path_lp_dbbudget_scipy(
+    tm_vector,
+    selected_ods,
+    base_splits,
+    path_library,
+    capacities,
+    prev_splits,
+    db_budget,
+    db_weight = 1e-3,
+    time_limit_sec = 20,
+    solver_msg = False,
+):
+    EPS = 1e-12
+    from te.simulator import apply_routing
+    from te.baselines import clone_splits
+    from te.lp_solver import _build_background_load
+
+    num_edges = int(capacities.size)
+    selected_set = {
+        int(od_idx)
+        for od_idx in selected_ods
+        if 0 <= int(od_idx) < len(tm_vector) and tm_vector[int(od_idx)] > 0
+    }
+
+    if not selected_set:
+        splits = clone_splits(base_splits)
+        routing = apply_routing(tm_vector, splits, path_library, capacities)
+        return HybridLPResult(splits=splits, routing=routing, status="NoSelection")
+
+    total_demand = float(np.sum(np.maximum(tm_vector, 0.0)))
+    background = _build_background_load(tm_vector, base_splits, path_library, selected_set, num_edges)
+
+    budget_active = prev_splits is not None and total_demand > EPS
+
+    fixed_sum = 0.0
+    rhs = float("inf")
+    if budget_active:
+        for od_idx, demand in enumerate(tm_vector):
+            d = float(demand)
+            if d <= 0 or od_idx in selected_set:
+                continue
+            paths = path_library.edge_idx_paths_by_od[od_idx]
+            if not paths:
+                continue
+            dim = len(paths)
+            prev_vec = np.asarray(prev_splits[od_idx], dtype=float) if od_idx < len(prev_splits) else np.zeros(dim)
+            base_vec = np.asarray(base_splits[od_idx], dtype=float) if od_idx < len(base_splits) else np.zeros(dim)
+            prev_pad = np.zeros(dim, dtype=float); prev_pad[: min(prev_vec.size, dim)] = prev_vec[: min(prev_vec.size, dim)]
+            base_pad = np.zeros(dim, dtype=float); base_pad[: min(base_vec.size, dim)] = base_vec[: min(base_vec.size, dim)]
+            fixed_sum += d * float(np.sum(np.abs(prev_pad - base_pad)))
+        rhs = 2.0 * total_demand * float(db_budget) - fixed_sum
+        if rhs < 0.0:
+            splits = clone_splits(base_splits)
+            routing = apply_routing(tm_vector, splits, path_library, capacities)
+            return HybridLPResult(splits=splits, routing=routing, status="BudgetInfeasible")
+
+    num_f = 0
+    od_path_map = []
+    for od_idx in sorted(selected_set):
+        paths = path_library.edge_idx_paths_by_od[od_idx]
+        od_path_map.append((od_idx, len(paths)))
+        num_f += len(paths)
+
+    num_vars = 1 + num_f + (num_f if budget_active else 0)
+
+    c = np.zeros(num_vars, dtype=float)
+    c[0] = 1.0
+    if budget_active and float(db_weight) > 0.0:
+        c[1 + num_f :] = float(db_weight)
+
+    bounds = [(0.0, None)] * num_vars
+
+    A_eq = []
+    b_eq = []
+    row_idx = 0
+    col_offset = 1
+    I_eq, J_eq, V_eq = [], [], []
+    for od_idx, num_p in od_path_map:
+        demand = float(tm_vector[od_idx])
+        for p in range(num_p):
+            I_eq.append(row_idx)
+            J_eq.append(col_offset + p)
+            V_eq.append(1.0)
+        b_eq.append(demand)
+        row_idx += 1
+        col_offset += num_p
+
+    A_eq = sp.coo_matrix((V_eq, (I_eq, J_eq)), shape=(row_idx, num_vars))
+
+    I_ub, J_ub, V_ub = [], [], []
+    b_ub = []
+    row_idx = 0
+    col_offset = 1
+    for od_idx, num_p in od_path_map:
+        paths = path_library.edge_idx_paths_by_od[od_idx]
+        for p, edge_path in enumerate(paths):
+            for e in edge_path:
+                I_ub.append(e)
+                J_ub.append(col_offset + p)
+                V_ub.append(1.0)
+        col_offset += num_p
+
+    for e in range(num_edges):
+        I_ub.append(e)
+        J_ub.append(0)
+        V_ub.append(-float(capacities[e]))
+        b_ub.append(-float(background[e]))
+
+    row_idx = num_edges
+
+    if budget_active:
+        col_offset = 1
+        y_offset = 1 + num_f
+        for od_idx, num_p in od_path_map:
+            demand = float(tm_vector[od_idx])
+            prev_vec = np.asarray(prev_splits[od_idx], dtype=float) if od_idx < len(prev_splits) else np.zeros(num_p)
+            prev_pad = np.zeros(num_p, dtype=float)
+            prev_pad[: min(prev_vec.size, num_p)] = prev_vec[: min(prev_vec.size, num_p)]
+            prev_f = prev_pad * demand
+
+            for p in range(num_p):
+                I_ub.append(row_idx)
+                J_ub.append(col_offset + p)
+                V_ub.append(1.0)
+                I_ub.append(row_idx)
+                J_ub.append(y_offset + p)
+                V_ub.append(-1.0)
+                b_ub.append(float(prev_f[p]))
+                row_idx += 1
+
+                I_ub.append(row_idx)
+                J_ub.append(col_offset + p)
+                V_ub.append(-1.0)
+                I_ub.append(row_idx)
+                J_ub.append(y_offset + p)
+                V_ub.append(-1.0)
+                b_ub.append(-float(prev_f[p]))
+                row_idx += 1
+            col_offset += num_p
+            y_offset += num_p
+
+        y_offset = 1 + num_f
+        for p in range(num_f):
+            I_ub.append(row_idx)
+            J_ub.append(y_offset + p)
+            V_ub.append(1.0)
+        b_ub.append(rhs)
+        row_idx += 1
+
+    A_ub = sp.coo_matrix((V_ub, (I_ub, J_ub)), shape=(row_idx, num_vars))
+    options = {"time_limit": float(time_limit_sec), "disp": solver_msg, "presolve": True}
+    res = linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs", options=options)
+
+    if not res.success:
+        splits = clone_splits(base_splits)
+        routing = apply_routing(tm_vector, splits, path_library, capacities)
+        return HybridLPResult(splits=splits, routing=routing, status=f"DBBudgetFailed:{res.message}")
+
+    x = res.x
+    splits = clone_splits(base_splits)
+    col_offset = 1
+    for od_idx, num_p in od_path_map:
+        demand = float(tm_vector[od_idx])
+        f_vals = x[col_offset : col_offset + num_p]
+        if demand > EPS:
+            sp_vals = f_vals / demand
+            sp_vals = np.maximum(sp_vals, 0.0)
+            s = np.sum(sp_vals)
+            if s > 0:
+                sp_vals /= s
+            splits[od_idx] = sp_vals
+        col_offset += num_p
+
+    routing = apply_routing(tm_vector, splits, path_library, capacities)
+    return HybridLPResult(splits=splits, routing=routing, status="Optimal")
