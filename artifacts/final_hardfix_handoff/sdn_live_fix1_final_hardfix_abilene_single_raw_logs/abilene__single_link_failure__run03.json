@@ -1,0 +1,213 @@
+{
+  "topology": "abilene",
+  "scenario": "single_link_failure",
+  "run_id": 3,
+  "mode": "live",
+  "method": "Reward-Gated GNN-LPD Traffic Engineering (RG-GNN-LPD)",
+  "pre_action_name": "K200",
+  "post_action_name": "K200",
+  "offered_udp_rate_mbps": 21.124,
+  "post_failure_bottleneck_capacity_mbps": 250.0,
+  "rate_cap_used": 0.45,
+  "install_ms": 1.013,
+  "initial_install_ms": 723.39,
+  "incremental_install_ms": 1.013,
+  "recovery_ms": 23.135,
+  "rule_count": 26,
+  "changed_rules": 0,
+  "unchanged_rules": 26,
+  "added_rules": 0,
+  "removed_rules": 0,
+  "modified_rules": 0,
+  "controller_response_ms": 284.186,
+  "legacy_controller_response_ms": 284.186,
+  "controller_pipeline_ms": 1.137,
+  "controller_decision_ms": 0.163,
+  "controller_timing_note": "Failure row: Controller decision ms measures the live event-path lookup/handoff only because the RG-GNN-LPD backup decision was precomputed on a warmed controller before the fault. Legacy controller response ms retains the warm scorer/DDQN/routing cycle for diagnostic comparison only. Controller pipeline ms adds rule-diff construction and OpenFlow programming, and excludes probe waiting and logging.",
+  "disconnected_ods": 0,
+  "affected_ods": 8,
+  "candidate_path_exhausted_ods": 0,
+  "failed_link_keys": [
+    "SNVAng<->STTLng"
+  ],
+  "failed_edge_indices": [
+    14,
+    29
+  ],
+  "timing_breakdown_ms": {
+    "event_detection_ms": 0.0,
+    "state_snapshot_ms": 0.163,
+    "ddqn_inference_ms": 0.0,
+    "scorer_ranking_ms": 0.0,
+    "routing_compute_ms": 0.0,
+    "rule_diff_build_ms": 0.973,
+    "flow_mod_send_ms": 0.001,
+    "barrier_wait_ms": 0.0,
+    "probe_wait_ms": 21.562,
+    "logging_ms": 0.0
+  },
+  "measurement_note": "Incremental recovery kept the controller warm, preserved unaffected switches, used precomputed backup paths, applied one batched replace-flows update per changed switch, and separated transient loss from post-recovery steady-state QoS. Fast-failover groups were not enabled in this harness; backup-path rules on downstream switches were preinstalled before failure, and only divergence-point changes were left for post-failure incremental updates.",
+  "pre_failure": [
+    {
+      "phase": "pre_failure",
+      "od_idx": 79,
+      "src_node": "LOSAng",
+      "dst_node": "CHINng",
+      "target_ip": "10.0.0.3",
+      "offered_rate_mbps": 8.739,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 9.16,
+      "iperf_jitter_ms": 0.02,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.089,
+      "ping_jitter_ms": 0.015,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "pre_failure",
+      "od_idx": 128,
+      "src_node": "WASHng",
+      "dst_node": "LOSAng",
+      "target_ip": "10.0.0.8",
+      "offered_rate_mbps": 8.17,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 8.54,
+      "iperf_jitter_ms": 0.007,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.083,
+      "ping_jitter_ms": 0.012,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "pre_failure",
+      "od_idx": 82,
+      "src_node": "LOSAng",
+      "dst_node": "IPLSng",
+      "target_ip": "10.0.0.6",
+      "offered_rate_mbps": 4.215,
+      "path_bottleneck_mbps": 250.0,
+      "throughput_mbps": 4.42,
+      "iperf_jitter_ms": 0.028,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.098,
+      "ping_jitter_ms": 0.027,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "transient_recovery": [
+    {
+      "phase": "transient_recovery",
+      "od_idx": 79,
+      "src_node": "LOSAng",
+      "dst_node": "CHINng",
+      "target_ip": "10.0.0.3",
+      "offered_rate_mbps": 8.739,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 9.16,
+      "iperf_jitter_ms": 0.016,
+      "transient_packet_loss_pct": 0.0,
+      "iperf_client_log_bytes": 555,
+      "iperf_server_log_bytes": 447
+    },
+    {
+      "phase": "transient_recovery",
+      "od_idx": 128,
+      "src_node": "WASHng",
+      "dst_node": "LOSAng",
+      "target_ip": "10.0.0.8",
+      "offered_rate_mbps": 8.17,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 8.47,
+      "iperf_jitter_ms": 0.016,
+      "transient_packet_loss_pct": 0.0,
+      "iperf_client_log_bytes": 556,
+      "iperf_server_log_bytes": 448
+    },
+    {
+      "phase": "transient_recovery",
+      "od_idx": 82,
+      "src_node": "LOSAng",
+      "dst_node": "IPLSng",
+      "target_ip": "10.0.0.6",
+      "offered_rate_mbps": 4.215,
+      "path_bottleneck_mbps": 250.0,
+      "throughput_mbps": 4.42,
+      "iperf_jitter_ms": 0.011,
+      "transient_packet_loss_pct": 0.0,
+      "iperf_client_log_bytes": 555,
+      "iperf_server_log_bytes": 447
+    }
+  ],
+  "post_recovery": [
+    {
+      "phase": "post_recovery",
+      "od_idx": 79,
+      "src_node": "LOSAng",
+      "dst_node": "CHINng",
+      "target_ip": "10.0.0.3",
+      "offered_rate_mbps": 8.739,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 9.16,
+      "iperf_jitter_ms": 0.023,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.09,
+      "ping_jitter_ms": 0.035,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "post_recovery",
+      "od_idx": 128,
+      "src_node": "WASHng",
+      "dst_node": "LOSAng",
+      "target_ip": "10.0.0.8",
+      "offered_rate_mbps": 8.17,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 8.57,
+      "iperf_jitter_ms": 0.019,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.084,
+      "ping_jitter_ms": 0.016,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "post_recovery",
+      "od_idx": 82,
+      "src_node": "LOSAng",
+      "dst_node": "IPLSng",
+      "target_ip": "10.0.0.6",
+      "offered_rate_mbps": 4.215,
+      "path_bottleneck_mbps": 250.0,
+      "throughput_mbps": 4.42,
+      "iperf_jitter_ms": 0.047,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.097,
+      "ping_jitter_ms": 0.014,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "recovery_probe_history": [
+    {
+      "elapsed_ms": 0.002,
+      "results": [
+        {
+          "od_idx": 79,
+          "src_node": "LOSAng",
+          "dst_node": "CHINng",
+          "success": true
+        },
+        {
+          "od_idx": 128,
+          "src_node": "WASHng",
+          "dst_node": "LOSAng",
+          "success": true
+        },
+        {
+          "od_idx": 82,
+          "src_node": "LOSAng",
+          "dst_node": "IPLSng",
+          "success": true
+        }
+      ]
+    }
+  ]
+}

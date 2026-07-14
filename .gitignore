@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.prof
+*.tar
+*.tgz
+*.tar.gz
+
+# Keep the repo focused on Mininet code and selected evidence.
+results/*
+!results/gnn_lpd_dqn_selective_db_lp/
+results/gnn_lpd_dqn_selective_db_lp/*
+!results/gnn_lpd_dqn_selective_db_lp/sdn_mininet_clean/
+results/gnn_lpd_dqn_selective_db_lp/sdn_mininet_clean/*
+!results/gnn_lpd_dqn_selective_db_lp/sdn_mininet_clean/sdn_live_fix1_final_hardfix_*.csv
+!results/gnn_lpd_dqn_selective_db_lp/sdn_mininet_clean/sdn_live_fix1_section13_final_selected_HARDFIX.csv

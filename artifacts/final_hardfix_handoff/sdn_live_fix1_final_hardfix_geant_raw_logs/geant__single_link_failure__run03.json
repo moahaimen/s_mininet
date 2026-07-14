@@ -1,0 +1,113 @@
+{
+  "topology": "geant",
+  "scenario": "single_link_failure",
+  "run_id": 3,
+  "mode": "live",
+  "method": "Reward-Gated GNN-LPD Traffic Engineering (RG-GNN-LPD)",
+  "pre_action_name": "K500",
+  "post_action_name": "K500",
+  "offered_udp_rate_mbps": 70.716,
+  "post_failure_bottleneck_capacity_mbps": 1000.0,
+  "rate_cap_used": 0.45,
+  "install_ms": 293.039,
+  "initial_install_ms": 881.817,
+  "incremental_install_ms": 293.039,
+  "recovery_ms": 299.547,
+  "rule_count": 8,
+  "changed_rules": 6,
+  "unchanged_rules": 6,
+  "added_rules": 0,
+  "removed_rules": 4,
+  "modified_rules": 2,
+  "controller_response_ms": 1036.299,
+  "legacy_controller_response_ms": 1036.299,
+  "controller_pipeline_ms": 293.082,
+  "controller_decision_ms": 0.296,
+  "controller_timing_note": "Failure row: Controller decision ms measures the live event-path lookup/handoff only because the RG-GNN-LPD backup decision was precomputed on a warmed controller before the fault. Legacy controller response ms retains the warm scorer/DDQN/routing cycle for diagnostic comparison only. Controller pipeline ms adds rule-diff construction and OpenFlow programming, and excludes probe waiting and logging.",
+  "disconnected_ods": 0,
+  "affected_ods": 37,
+  "candidate_path_exhausted_ods": 0,
+  "failed_link_keys": [
+    "se1.se<->uk1.uk"
+  ],
+  "failed_edge_indices": [
+    35,
+    71
+  ],
+  "timing_breakdown_ms": {
+    "event_detection_ms": 0.0,
+    "state_snapshot_ms": 0.296,
+    "ddqn_inference_ms": 0.0,
+    "scorer_ranking_ms": 0.0,
+    "routing_compute_ms": 0.0,
+    "rule_diff_build_ms": 0.943,
+    "flow_mod_send_ms": 291.843,
+    "barrier_wait_ms": 0.0,
+    "probe_wait_ms": 5.941,
+    "logging_ms": 0.0
+  },
+  "measurement_note": "Incremental recovery kept the controller warm, preserved unaffected switches, used precomputed backup paths, applied one batched replace-flows update per changed switch, and separated transient loss from post-recovery steady-state QoS. Fast-failover groups were not enabled in this harness; backup-path rules on downstream switches were preinstalled before failure, and only divergence-point changes were left for post-failure incremental updates.",
+  "pre_failure": [
+    {
+      "phase": "pre_failure",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 70.716,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 74.1,
+      "iperf_jitter_ms": 0.037,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.099,
+      "ping_jitter_ms": 0.014,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "transient_recovery": [
+    {
+      "phase": "transient_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 70.716,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 68.7,
+      "iperf_jitter_ms": 0.003,
+      "transient_packet_loss_pct": 7.3,
+      "iperf_client_log_bytes": 619,
+      "iperf_server_log_bytes": 510
+    }
+  ],
+  "post_recovery": [
+    {
+      "phase": "post_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 70.716,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 74.0,
+      "iperf_jitter_ms": 0.013,
+      "iperf_loss_pct": 0.12,
+      "ping_rtt_ms": 0.094,
+      "ping_jitter_ms": 0.015,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "recovery_probe_history": [
+    {
+      "elapsed_ms": 0.001,
+      "results": [
+        {
+          "od_idx": 206,
+          "src_node": "hu1.hu",
+          "dst_node": "se1.se",
+          "success": true
+        }
+      ]
+    }
+  ]
+}
