@@ -1,0 +1,5 @@
+Topology,Stage1_PR,Stage2_PR,FlexDATE_PR,Stage2_DB,FlexDATE_DB,Stage2_mean_ms,Max_K,Max_non_ecmp,Compliance_pass,PR_win,DB_win,Status
+abilene,0.9908,0.991,0.958,0.0091,0.0513,20.9,50,50,True,True,True,WIN
+cernet,0.9915,0.9981,0.975,0.0015,0.0183,56.5,30,30,True,True,True,WIN
+geant,0.9882,0.9953,0.995,0.0031,0.0296,40.6,50,50,True,True,True,WIN
+sprintlink,0.7984,0.8058,0.999,0.0007,0.051,39.3,50,50,True,False,True,K<=50 limitation

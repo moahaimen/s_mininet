@@ -1,15 +1,18 @@
 # s_mininet
 
-Focused FIX1 Mininet/OVS validation snapshot for the RG-GNN-LPD controller and its final live SDN rerun artifacts.
+S23 RG-GNN-LPD project code plus the FIX1 Mininet/OVS validation harness for
+fresh live SDN reruns.
 
 ## What is in this repo
 
+- S23 project folders copied from `moahaimen/s23_network`: `phase1_reactive/`,
+  `phase2/`, `phase3/`, `rl/`, `eval/`, `tests/`, `configs/`, `data/`,
+  `results/`, `scripts/`, `sdn/`, and `te/`
 - `scripts/phase1_5/`: the live SDN/Mininet runner and related FIX1 build scripts
 - `te/`: traffic-engineering solvers and path utilities used by the runner
-- `configs/`: topology and phase config files
-- `data/`: small bundled topology assets used by the live harness
-- `sdn/`: SDN helper modules
+- `sdn/`: SDN helper modules and controller/testbed adapters
 - `artifacts/final_hardfix_handoff/`: final CSVs, raw logs, and validation notes from the hardfix handoff bundle
+- `STUDENT_MININET_RUN_GUIDE.md`: the short Linux/Mininet command handoff for a student rerun
 
 ## Original code vs Mininet code
 
@@ -33,4 +36,6 @@ See `CHANGES_FROM_ORIGINAL.md` for the full list. The key updates were:
 
 ## Important note
 
-This repo is a curated Mininet-focused publish from the larger FIX1 snapshot. It is not the entire original workspace dump.
+This student branch is intended to preserve the S23 project structure while
+adding the Mininet rerun harness and evidence files needed for live SDN
+validation.

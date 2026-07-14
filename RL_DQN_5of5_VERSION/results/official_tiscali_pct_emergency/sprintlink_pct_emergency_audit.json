@@ -1,0 +1,26 @@
+{
+  "pipeline": "official",
+  "emergency_budget_type": "percentage",
+  "path_library_k": 8,
+  "best_config": {
+    "emergency_budget_pct": 60,
+    "emergency_cap": 2400,
+    "paths_used_in_lp": 3,
+    "selected_od_count": 1412,
+    "Mean_PR": 0.9997,
+    "Min_PR": 0.9924,
+    "PR_ge_0999_frac": 0.933,
+    "Mean_DB": 0.0022,
+    "P95_DB": 0.0053,
+    "Mean_decision_ms": 420.7,
+    "P95_decision_ms": 568.8,
+    "Max_decision_ms": 640.4,
+    "FlexDATE_PR_win": true,
+    "FlexDATE_DB_win": true,
+    "Mean_under_500": true,
+    "all_od_lp_used": 0,
+    "nonselected_policy": "ECMP"
+  },
+  "any_PR_win": true,
+  "note": "Emergency-expanded selected-OD mode (percentage budget), inspired by old report; NOT strict K10-K50; NOT all-OD."
+}

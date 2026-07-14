@@ -1,0 +1,26 @@
+{
+  "action_space": [
+    "KEEP_PREVIOUS_ROUTING",
+    "OPTIMIZE_K10",
+    "OPTIMIZE_K20",
+    "OPTIMIZE_K30",
+    "OPTIMIZE_K40",
+    "OPTIMIZE_K50",
+    "EMERGENCY"
+  ],
+  "max_selected_k": 50,
+  "max_non_ecmp": 50,
+  "selected_k_le_50": true,
+  "non_ecmp_le_50": true,
+  "full_od_lp_used": 0,
+  "hidden_k_escalation_used": 0,
+  "uses_optimal_at_inference": false,
+  "topology_specific_k_budget": false,
+  "topology_specific_threshold": false,
+  "deployable": true,
+  "nonselected_ods": "ECMP",
+  "geant_PR": 0.9953,
+  "geant_win": true,
+  "flexdate_strict_wins": 3,
+  "imitation_acc": 0.7778
+}

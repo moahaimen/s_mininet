@@ -1,0 +1,16 @@
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+networkx>=3.0
+PyYAML>=6.0
+PuLP>=2.8
+matplotlib>=3.8
+torch>=2.2
+tqdm>=4.66
+pytest>=8.0
+
+# Optional: Mininet is required ONLY for live SDN emulation
+# (run_sdn_mininet_clean.py --mode mininet). It is Linux-only and not
+# pip-installable on Windows/macOS; install via the OS package manager
+# (e.g. `sudo apt install mininet`). The default --mode simulate does not
+# need it, and the code degrades gracefully when it is absent.

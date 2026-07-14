@@ -1,0 +1,14 @@
+{
+  "topology": "germany50_zeroshot",
+  "action": "EMERGENCY",
+  "emergency_budget_pct": 60,
+  "paths_used_in_lp": 3,
+  "selected_od_count": 990,
+  "Mean_PR": 0.9925,
+  "Mean_DB": 0.011,
+  "Mean_decision_ms": 211.6,
+  "all_od_lp_used": 0,
+  "no_retraining": true,
+  "old_report_PR": 0.9677,
+  "beats_old_report_PR": true
+}

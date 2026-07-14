@@ -1,0 +1,9 @@
+Topology,N,Our_PR,Mean_DB,Mean_ms,Max_K,Max_non_ecmp,compliant,action_mix
+abilene,2016,0.991,0.0091,20.9,50,50,True,"{'EMERGENCY': np.int64(1871), 'OPTIMIZE_K40': np.int64(124), 'OPTIMIZE_K30': np.int64(21)}"
+geant,672,0.9953,0.0031,40.6,50,50,True,"{'OPTIMIZE_K50': np.int64(470), 'EMERGENCY': np.int64(175), 'OPTIMIZE_K40': np.int64(27)}"
+cernet,200,0.9981,0.0015,56.5,30,30,True,"{'OPTIMIZE_K20': np.int64(131), 'OPTIMIZE_K10': np.int64(57), 'KEEP_PREVIOUS_ROUTING': np.int64(8), 'OPTIMIZE_K30': np.int64(4)}"
+sprintlink,200,0.8058,0.0007,39.3,50,50,True,"{'KEEP_PREVIOUS_ROUTING': np.int64(123), 'EMERGENCY': np.int64(51), 'OPTIMIZE_K50': np.int64(25), 'OPTIMIZE_K40': np.int64(1)}"
+tiscali,200,0.8664,0.0007,40.7,50,50,True,"{'KEEP_PREVIOUS_ROUTING': np.int64(136), 'EMERGENCY': np.int64(32), 'OPTIMIZE_K50': np.int64(32)}"
+ebone,200,0.994,0.0021,42.9,50,50,True,"{'OPTIMIZE_K50': np.int64(157), 'OPTIMIZE_K10': np.int64(43)}"
+germany50,288,0.8685,0.0134,67.1,50,50,True,"{'OPTIMIZE_K20': np.int64(275), 'EMERGENCY': np.int64(13)}"
+vtlwavenet2011,40,0.9338,0.0006,318.3,20,20,True,{'OPTIMIZE_K20': np.int64(40)}

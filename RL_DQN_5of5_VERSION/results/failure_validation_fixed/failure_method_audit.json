@@ -1,0 +1,37 @@
+{
+  "gnn_used": 1,
+  "lpd_used": 1,
+  "dqn_used": 1,
+  "heuristic_used": 0,
+  "random_forest_gate_used": 0,
+  "sticky_gate_used": 0,
+  "stage2_used": 0,
+  "disturbance_finalization_used": 0,
+  "criticality_backend": "gnn_lpd",
+  "method": "gnn_lpd_dqn_selective_db_lp",
+  "total_cycles": 360,
+  "topologies": [
+    "abilene",
+    "geant"
+  ],
+  "scenarios": [
+    "normal",
+    "single_link_failure",
+    "two_link_failure",
+    "three_link_failure",
+    "random_link_failure_1",
+    "random_link_failure_2",
+    "spike",
+    "mixed_spike_failure",
+    "capacity_degradation_50"
+  ],
+  "gnn_used_all": true,
+  "lpd_used_all": true,
+  "dqn_used_all": true,
+  "heuristic_used_any": false,
+  "rf_gate_used_any": false,
+  "sticky_used_any": false,
+  "stage2_used_any": false,
+  "distfin_used_any": false,
+  "audit_result": "PASS"
+}

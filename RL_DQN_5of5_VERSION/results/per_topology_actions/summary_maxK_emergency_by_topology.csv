@@ -1,0 +1,9 @@
+topology,N,max_selected_K,max_non_ecmp,emergency_count,emergency_fraction,dominant_action,trackB_emergency_budget
+abilene,2016,50,50,1871,0.928,EMERGENCY,(strict K<=50)
+geant,672,50,50,175,0.26,OPTIMIZE_K50,(strict K<=50)
+cernet,200,30,30,0,0.0,OPTIMIZE_K20,(strict K<=50)
+sprintlink,200,50,50,51,0.255,KEEP_PREVIOUS_ROUTING,EMERGENCY 75% (1400 ODs)
+tiscali,200,50,50,32,0.16,KEEP_PREVIOUS_ROUTING,EMERGENCY 60% (1412 ODs)
+ebone,200,50,50,0,0.0,OPTIMIZE_K50,(strict K<=50)
+germany50,288,50,50,13,0.045,OPTIMIZE_K20,EMERGENCY 50-60% (675-810 ODs)
+vtlwavenet2011,40,20,20,0,0.0,OPTIMIZE_K20,(strict K<=50)

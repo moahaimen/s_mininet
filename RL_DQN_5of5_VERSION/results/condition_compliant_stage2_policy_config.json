@@ -1,0 +1,17 @@
+{
+  "action_space": [
+    "KEEP_PREVIOUS_ROUTING",
+    "OPTIMIZE_K10",
+    "OPTIMIZE_K20",
+    "OPTIMIZE_K30",
+    "OPTIMIZE_K40",
+    "OPTIMIZE_K50",
+    "EMERGENCY"
+  ],
+  "emergency": "OPTIMIZE_K50 db_budget=0.10 strong repair; K<=50",
+  "balanced_training": "672/topology",
+  "deployable": true,
+  "uses_optimal_at_inference": false,
+  "topology_specific_k_budget": false,
+  "strict_num_non_ecmp_le_50": true
+}
