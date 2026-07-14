@@ -54,6 +54,7 @@ TIMING_FIELDS = [
     ("logging_ms", "Logging ms"),
 ]
 
+# lowercase record-schema column order (mirrors runner write_qos_enhanced_outputs)
 PER_RUN_LOWER = [
     "topology", "scenario", "run_id", "offered_udp_rate_mbps",
     "pre_failure_throughput_mbps", "post_recovery_throughput_mbps",
@@ -119,6 +120,8 @@ INT_COLS = {
 
 
 def write_csv(df: pd.DataFrame, path: Path) -> None:
+    """Write CSV as UTF-8 with LF line endings (matches the Linux-produced trusted files,
+    avoiding Windows text-mode CRLF translation of embedded newlines in quoted notes)."""
     Path(path).write_bytes(df.to_csv(index=False, lineterminator="\n").encode("utf-8"))
 
 
@@ -140,6 +143,7 @@ def _pair_mean_over_ods(lst, a, b):
 
 
 def record_from_json(d: dict) -> dict:
+    """Reconstruct one per-run record (lowercase schema) purely from a raw JSON log."""
     pre = d.get("pre_failure") or []
     post = d.get("post_recovery") or []
     tr = d.get("transient_recovery") or []
@@ -176,12 +180,14 @@ def record_from_json(d: dict) -> dict:
         "disconnected_ods": int(d.get("disconnected_ods", 0)),
         "candidate_path_exhausted_ods": int(d.get("candidate_path_exhausted_ods", 0)),
         "controller_timing_note": d.get("controller_timing_note", ""),
+        # precomputed backup plan is derived (not persisted as a top-level scalar)
         "precomputed_backup_plan": "yes" if scen not in NON_FAILURE else "no",
         "post_failure_bottleneck_capacity_mbps": round(_f(d.get("post_failure_bottleneck_capacity_mbps")), 3),
         "rate_cap_used": round(_f(d.get("rate_cap_used")), 3),
         "measurement_note": d.get("measurement_note", ""),
         "mode": d.get("mode", "live"),
     }
+    # timing-breakdown detail fields (Logging ms carries the documented raw-evidence gap)
     for key, _label in TIMING_FIELDS:
         rec[key] = round(_f(tb.get(key)), 3)
     return rec
@@ -193,6 +199,7 @@ def load_records(*dirs) -> pd.DataFrame:
         for p in sorted(glob.glob(os.path.join(dpath, "*.json"))):
             recs.append(record_from_json(json.load(open(p, encoding="utf-8"))))
     df = pd.DataFrame(recs)
+    # canonical ordering: topology, scenario, run_id
     df["_t"] = df["topology"].map({t: i for i, t in enumerate(TOPOLOGY_ORDER)})
     df["_s"] = df["scenario"].map({s: i for i, s in enumerate(SCENARIO_ORDER)})
     df = df.sort_values(["_t", "_s", "run_id"]).drop(columns=["_t", "_s"]).reset_index(drop=True)
@@ -303,19 +310,24 @@ def main() -> None:
 
     df = load_records(args.abilene_raw, args.geant_raw)
 
+    # combined per-run: alphabetical (Topology, Scenario, Run ID)
     per_run = build_per_run(df)
     combined_per_run = per_run.sort_values(["Topology", "Scenario", "Run ID"]).reset_index(drop=True)
     write_csv(combined_per_run, out / "sdn_live_fix1_final_hardfix_per_run.csv")
 
+    # combined summary: canonical order (df already canonical)
     summary = build_summary(df)
     write_csv(summary, out / "sdn_live_fix1_final_hardfix_summary.csv")
 
+    # timing breakdown: canonical order
     write_csv(build_timing_breakdown(df), out / "sdn_live_fix1_final_hardfix_timing_breakdown.csv")
 
+    # GEANT split (topology filter -> excludes Abilene single_link_failure)
     gdf = df[df["topology"] == "geant"].reset_index(drop=True)
     write_csv(build_per_run(gdf), out / "sdn_live_fix1_final_hardfix_geant_per_run.csv")
     write_csv(build_summary(gdf), out / "sdn_live_fix1_final_hardfix_geant_summary.csv")
 
+    # Abilene single-link split (topology + scenario filter)
     adf = df[(df["topology"] == "abilene") & (df["scenario"] == "single_link_failure")].reset_index(drop=True)
     write_csv(build_per_run(adf), out / "sdn_live_fix1_final_hardfix_abilene_single_per_run.csv")
     write_csv(build_summary(adf), out / "sdn_live_fix1_final_hardfix_abilene_single_summary.csv")

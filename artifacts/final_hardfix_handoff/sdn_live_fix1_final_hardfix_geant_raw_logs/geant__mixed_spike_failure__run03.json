@@ -1,0 +1,113 @@
+{
+  "topology": "geant",
+  "scenario": "mixed_spike_failure",
+  "run_id": 3,
+  "mode": "live",
+  "method": "Reward-Gated GNN-LPD Traffic Engineering (RG-GNN-LPD)",
+  "pre_action_name": "K800",
+  "post_action_name": "K800",
+  "offered_udp_rate_mbps": 212.148,
+  "post_failure_bottleneck_capacity_mbps": 1000.0,
+  "rate_cap_used": 0.45,
+  "install_ms": 340.862,
+  "initial_install_ms": 882.797,
+  "incremental_install_ms": 340.862,
+  "recovery_ms": 346.631,
+  "rule_count": 8,
+  "changed_rules": 7,
+  "unchanged_rules": 5,
+  "added_rules": 1,
+  "removed_rules": 4,
+  "modified_rules": 2,
+  "controller_response_ms": 1008.359,
+  "legacy_controller_response_ms": 1008.359,
+  "controller_pipeline_ms": 340.974,
+  "controller_decision_ms": 0.345,
+  "controller_timing_note": "Failure row: Controller decision ms measures the live event-path lookup/handoff only because the RG-GNN-LPD backup decision was precomputed on a warmed controller before the fault. Legacy controller response ms retains the warm scorer/DDQN/routing cycle for diagnostic comparison only. Controller pipeline ms adds rule-diff construction and OpenFlow programming, and excludes probe waiting and logging.",
+  "disconnected_ods": 0,
+  "affected_ods": 41,
+  "candidate_path_exhausted_ods": 0,
+  "failed_link_keys": [
+    "se1.se<->uk1.uk"
+  ],
+  "failed_edge_indices": [
+    35,
+    71
+  ],
+  "timing_breakdown_ms": {
+    "event_detection_ms": 0.0,
+    "state_snapshot_ms": 0.345,
+    "ddqn_inference_ms": 0.0,
+    "scorer_ranking_ms": 0.0,
+    "routing_compute_ms": 0.0,
+    "rule_diff_build_ms": 0.955,
+    "flow_mod_send_ms": 339.674,
+    "barrier_wait_ms": 0.0,
+    "probe_wait_ms": 5.124,
+    "logging_ms": 0.0
+  },
+  "measurement_note": "Incremental recovery kept the controller warm, used precomputed backup paths, preserved unaffected switches, and applied one batched replace-flows update per changed switch. For mixed spike+failure, the link failure was injected first, stable probes were reached, and spike traffic was applied 400 ms later as a post-convergence stress step.",
+  "pre_failure": [
+    {
+      "phase": "pre_failure",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 212.148,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 222.0,
+      "iperf_jitter_ms": 0.009,
+      "iperf_loss_pct": 0.078,
+      "ping_rtt_ms": 0.12,
+      "ping_jitter_ms": 0.038,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "transient_recovery": [
+    {
+      "phase": "transient_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 212.148,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 222.0,
+      "iperf_jitter_ms": 0.014,
+      "transient_packet_loss_pct": 0.0018,
+      "iperf_client_log_bytes": 562,
+      "iperf_server_log_bytes": 454
+    }
+  ],
+  "post_recovery": [
+    {
+      "phase": "post_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 212.148,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 221.0,
+      "iperf_jitter_ms": 0.001,
+      "iperf_loss_pct": 0.72,
+      "ping_rtt_ms": 0.073,
+      "ping_jitter_ms": 0.007,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "recovery_probe_history": [
+    {
+      "elapsed_ms": 0.001,
+      "results": [
+        {
+          "od_idx": 206,
+          "src_node": "hu1.hu",
+          "dst_node": "se1.se",
+          "success": true
+        }
+      ]
+    }
+  ]
+}

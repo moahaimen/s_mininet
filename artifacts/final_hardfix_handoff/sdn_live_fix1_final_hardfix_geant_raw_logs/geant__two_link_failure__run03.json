@@ -1,0 +1,116 @@
+{
+  "topology": "geant",
+  "scenario": "two_link_failure",
+  "run_id": 3,
+  "mode": "live",
+  "method": "Reward-Gated GNN-LPD Traffic Engineering (RG-GNN-LPD)",
+  "pre_action_name": "K500",
+  "post_action_name": "K500",
+  "offered_udp_rate_mbps": 70.716,
+  "post_failure_bottleneck_capacity_mbps": 1000.0,
+  "rate_cap_used": 0.45,
+  "install_ms": 465.773,
+  "initial_install_ms": 968.709,
+  "incremental_install_ms": 465.773,
+  "recovery_ms": 471.971,
+  "rule_count": 8,
+  "changed_rules": 7,
+  "unchanged_rules": 5,
+  "added_rules": 1,
+  "removed_rules": 4,
+  "modified_rules": 2,
+  "controller_response_ms": 968.616,
+  "legacy_controller_response_ms": 968.616,
+  "controller_pipeline_ms": 465.774,
+  "controller_decision_ms": 0.337,
+  "controller_timing_note": "Failure row: Controller decision ms measures the live event-path lookup/handoff only because the RG-GNN-LPD backup decision was precomputed on a warmed controller before the fault. Legacy controller response ms retains the warm scorer/DDQN/routing cycle for diagnostic comparison only. Controller pipeline ms adds rule-diff construction and OpenFlow programming, and excludes probe waiting and logging.",
+  "disconnected_ods": 0,
+  "affected_ods": 62,
+  "candidate_path_exhausted_ods": 0,
+  "failed_link_keys": [
+    "pt1.pt<->uk1.uk",
+    "se1.se<->uk1.uk"
+  ],
+  "failed_edge_indices": [
+    34,
+    35,
+    70,
+    71
+  ],
+  "timing_breakdown_ms": {
+    "event_detection_ms": 0.0,
+    "state_snapshot_ms": 0.337,
+    "ddqn_inference_ms": 0.0,
+    "scorer_ranking_ms": 0.0,
+    "routing_compute_ms": 0.0,
+    "rule_diff_build_ms": 1.326,
+    "flow_mod_send_ms": 464.111,
+    "barrier_wait_ms": 0.0,
+    "probe_wait_ms": 5.454,
+    "logging_ms": 0.0
+  },
+  "measurement_note": "Incremental recovery kept the controller warm, preserved unaffected switches, used precomputed backup paths, applied one batched replace-flows update per changed switch, and separated transient loss from post-recovery steady-state QoS.",
+  "pre_failure": [
+    {
+      "phase": "pre_failure",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 70.716,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 74.0,
+      "iperf_jitter_ms": 0.005,
+      "iperf_loss_pct": 0.2,
+      "ping_rtt_ms": 0.115,
+      "ping_jitter_ms": 0.041,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "transient_recovery": [
+    {
+      "phase": "transient_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 70.716,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 69.8,
+      "iperf_jitter_ms": 0.007,
+      "transient_packet_loss_pct": 5.8,
+      "iperf_client_log_bytes": 620,
+      "iperf_server_log_bytes": 511
+    }
+  ],
+  "post_recovery": [
+    {
+      "phase": "post_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 70.716,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 74.1,
+      "iperf_jitter_ms": 0.007,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.098,
+      "ping_jitter_ms": 0.02,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "recovery_probe_history": [
+    {
+      "elapsed_ms": 0.002,
+      "results": [
+        {
+          "od_idx": 206,
+          "src_node": "hu1.hu",
+          "dst_node": "se1.se",
+          "success": true
+        }
+      ]
+    }
+  ]
+}

@@ -12,7 +12,7 @@ Usage:
     ryu-manager sdn/ryu_te_app.py --observe-links
 
 Or with custom config:
-    ryu-manager sdn/ryu_te_app.py --observe-links \
+    ryu-manager sdn/ryu_te_app.py --observe-links \\
         --config-file sdn/ryu_config.json
 """
 

@@ -1,0 +1,213 @@
+{
+  "topology": "geant",
+  "scenario": "mixed_spike_failure",
+  "run_id": 4,
+  "mode": "live",
+  "method": "Reward-Gated GNN-LPD Traffic Engineering (RG-GNN-LPD)",
+  "pre_action_name": "K800",
+  "post_action_name": "K500",
+  "offered_udp_rate_mbps": 529.301,
+  "post_failure_bottleneck_capacity_mbps": 1000.0,
+  "rate_cap_used": 0.45,
+  "install_ms": 1.477,
+  "initial_install_ms": 200.6,
+  "incremental_install_ms": 1.477,
+  "recovery_ms": 22.118,
+  "rule_count": 20,
+  "changed_rules": 0,
+  "unchanged_rules": 20,
+  "added_rules": 0,
+  "removed_rules": 0,
+  "modified_rules": 0,
+  "controller_response_ms": 904.844,
+  "legacy_controller_response_ms": 904.844,
+  "controller_pipeline_ms": 1.794,
+  "controller_decision_ms": 0.372,
+  "controller_timing_note": "Failure row: Controller decision ms measures the live event-path lookup/handoff only because the RG-GNN-LPD backup decision was precomputed on a warmed controller before the fault. Legacy controller response ms retains the warm scorer/DDQN/routing cycle for diagnostic comparison only. Controller pipeline ms adds rule-diff construction and OpenFlow programming, and excludes probe waiting and logging.",
+  "disconnected_ods": 0,
+  "affected_ods": 40,
+  "candidate_path_exhausted_ods": 0,
+  "failed_link_keys": [
+    "se1.se<->uk1.uk"
+  ],
+  "failed_edge_indices": [
+    35,
+    71
+  ],
+  "timing_breakdown_ms": {
+    "event_detection_ms": 0.0,
+    "state_snapshot_ms": 0.372,
+    "ddqn_inference_ms": 0.0,
+    "scorer_ranking_ms": 0.0,
+    "routing_compute_ms": 0.0,
+    "rule_diff_build_ms": 1.421,
+    "flow_mod_send_ms": 0.001,
+    "barrier_wait_ms": 0.0,
+    "probe_wait_ms": 19.87,
+    "logging_ms": 0.0
+  },
+  "measurement_note": "Incremental recovery kept the controller warm, used precomputed backup paths, preserved unaffected switches, and applied one batched replace-flows update per changed switch. For mixed spike+failure, the link failure was injected first, stable probes were reached, and spike traffic was applied 400 ms later as a post-convergence stress step.",
+  "pre_failure": [
+    {
+      "phase": "pre_failure",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 208.868,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 219.0,
+      "iperf_jitter_ms": 0.014,
+      "iperf_loss_pct": 0.16,
+      "ping_rtt_ms": 0.085,
+      "ping_jitter_ms": 0.011,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "pre_failure",
+      "od_idx": 60,
+      "src_node": "ch1.ch",
+      "dst_node": "si1.si",
+      "target_ip": "10.0.0.20",
+      "offered_rate_mbps": 139.362,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 146.0,
+      "iperf_jitter_ms": 0.001,
+      "iperf_loss_pct": 0.0,
+      "ping_rtt_ms": 0.078,
+      "ping_jitter_ms": 0.011,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "pre_failure",
+      "od_idx": 50,
+      "src_node": "ch1.ch",
+      "dst_node": "hu1.hu",
+      "target_ip": "10.0.0.10",
+      "offered_rate_mbps": 181.071,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 189.0,
+      "iperf_jitter_ms": 0.006,
+      "iperf_loss_pct": 0.22,
+      "ping_rtt_ms": 0.087,
+      "ping_jitter_ms": 0.004,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "transient_recovery": [
+    {
+      "phase": "transient_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 208.868,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 219.0,
+      "iperf_jitter_ms": 0.047,
+      "transient_packet_loss_pct": 0.093,
+      "iperf_client_log_bytes": 561,
+      "iperf_server_log_bytes": 453
+    },
+    {
+      "phase": "transient_recovery",
+      "od_idx": 60,
+      "src_node": "ch1.ch",
+      "dst_node": "si1.si",
+      "target_ip": "10.0.0.20",
+      "offered_rate_mbps": 139.362,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 146.0,
+      "iperf_jitter_ms": 0.029,
+      "transient_packet_loss_pct": 0.22,
+      "iperf_client_log_bytes": 620,
+      "iperf_server_log_bytes": 512
+    },
+    {
+      "phase": "transient_recovery",
+      "od_idx": 50,
+      "src_node": "ch1.ch",
+      "dst_node": "hu1.hu",
+      "target_ip": "10.0.0.10",
+      "offered_rate_mbps": 181.071,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 186.0,
+      "iperf_jitter_ms": 0.001,
+      "transient_packet_loss_pct": 2.0,
+      "iperf_client_log_bytes": 617,
+      "iperf_server_log_bytes": 509
+    }
+  ],
+  "post_recovery": [
+    {
+      "phase": "post_recovery",
+      "od_idx": 206,
+      "src_node": "hu1.hu",
+      "dst_node": "se1.se",
+      "target_ip": "10.0.0.19",
+      "offered_rate_mbps": 208.868,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 213.0,
+      "iperf_jitter_ms": 0.005,
+      "iperf_loss_pct": 0.69,
+      "ping_rtt_ms": 0.088,
+      "ping_jitter_ms": 0.011,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "post_recovery",
+      "od_idx": 60,
+      "src_node": "ch1.ch",
+      "dst_node": "si1.si",
+      "target_ip": "10.0.0.20",
+      "offered_rate_mbps": 139.362,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 146.0,
+      "iperf_jitter_ms": 0.007,
+      "iperf_loss_pct": 0.083,
+      "ping_rtt_ms": 0.085,
+      "ping_jitter_ms": 0.009,
+      "ping_loss_pct": 0.0
+    },
+    {
+      "phase": "post_recovery",
+      "od_idx": 50,
+      "src_node": "ch1.ch",
+      "dst_node": "hu1.hu",
+      "target_ip": "10.0.0.10",
+      "offered_rate_mbps": 181.071,
+      "path_bottleneck_mbps": 1000.0,
+      "throughput_mbps": 190.0,
+      "iperf_jitter_ms": 0.002,
+      "iperf_loss_pct": 0.074,
+      "ping_rtt_ms": 0.099,
+      "ping_jitter_ms": 0.016,
+      "ping_loss_pct": 0.0
+    }
+  ],
+  "recovery_probe_history": [
+    {
+      "elapsed_ms": 0.001,
+      "results": [
+        {
+          "od_idx": 206,
+          "src_node": "hu1.hu",
+          "dst_node": "se1.se",
+          "success": true
+        },
+        {
+          "od_idx": 60,
+          "src_node": "ch1.ch",
+          "dst_node": "si1.si",
+          "success": true
+        },
+        {
+          "od_idx": 50,
+          "src_node": "ch1.ch",
+          "dst_node": "hu1.hu",
+          "success": true
+        }
+      ]
+    }
+  ]
+}
